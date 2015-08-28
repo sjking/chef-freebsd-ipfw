@@ -4,7 +4,10 @@
 #
 # This configuration is for a basic webserver with SSH access. This webserver
 # is behind a gateway, and it's using the gateway as a DNS server. The
-# gateway address is 192.168.39.1.
+# gateway address is 192.168.39.1. This is for the vm testing machine, running
+# virtualbox by vagrant. It has a NAT adapter called em0, and a host-only
+# private network adapter called em1. em1 is emulating the external adapter in
+# an internet host. em0 is only there so vagrant works.
 
 # Flush out the list before we begin
 ipfw -q -f flush

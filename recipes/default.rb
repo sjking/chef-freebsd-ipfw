@@ -1,4 +1,4 @@
-#
+
 # Cookbook Name:: chef_freebsd_ipfw
 # Recipe:: default
 #
@@ -24,12 +24,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# Enable the firewall in rc.Conf
+firewall_data_bag = Chef::DataBagItem.load('firewall', node['hostname'])
+fw_rules = firewall_data_bag["rules"]
+
+# Enable the firewall in rc.conf
 execute "enable-firewall" do
    user "root"
    command "echo 'firewall_enable=\"YES\"' >> /etc/rc.conf"
    not_if "grep 'firewall_enable=\"YES\"' /etc/rc.conf"
- end
+end
 
 execute "enable-firewall-logging" do
   user "root"
@@ -51,7 +54,7 @@ end
 
 # create the firewall config file
 cookbook_file "/etc/ipfw.rules" do
-  source "ipfw.rules"
+  source fw_rules
   owner "root"
   group "wheel"
   mode "0644"
