@@ -1,0 +1,7 @@
+name 'chef_freebsd_ipfw'
+maintainer 'Steve King'
+maintainer_email 'you@example.com'
+license 'mit'
+description 'Installs/Configures chef_freebsd_ipfw'
+long_description 'Installs/Configures chef_freebsd_ipfw'
+version '0.1.0'

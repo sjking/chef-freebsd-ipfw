@@ -1,0 +1,81 @@
+#!/bin/sh
+# vim:ft=sh
+# https://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/firewalls-ipfw.html
+#
+# This configuration is for a basic webserver with SSH access. This webserver
+# is behind a gateway, and it's using the gateway as a DNS server. The
+# gateway address is 192.168.39.1.
+
+# Flush out the list before we begin
+ipfw -q -f flush
+
+# Set rules for command prefix
+cmd="ipfw -q add"
+pif="em1"
+
+# No restrictions on loopback interface
+$cmd 00010 allow all from any to any via lo0
+
+# allow all on the vagrant interface
+$cmd 00011 allow all from any to any via em0
+
+# Allow packets that match an existing rule in dynamic rules table
+$cmd 00101 check-state
+
+##############################################################################
+#### Stateful connections from internal systems to hosts on the internet #####
+##############################################################################
+
+# Allow access to public DNS
+$cmd 00110 allow tcp from any to 192.168.33.1 53 out via $pif setup keep-state
+$cmd 00111 allow udp from any to 192.168.33.1 53 out via $pif keep-state
+
+# Allow outbound HTTP and HTTPS connections
+$cmd 00200 allow tcp from any to any 80 out via $pif setup keep-state
+$cmd 00220 allow tcp from any to any 443 out via $pif setup keep-state
+
+# Allow outbound ping
+$cmd 00250 allow icmp from any to any out via $pif keep-state
+
+# Allow outbound NTP
+$cmd 00260 allow tcp from any to any 37 out via $pif setup keep-state
+
+# Allow outbound SSH
+$cmd 00280 allow tcp from any to any 22 out via $pif setup keep-state
+
+# deny and log all other outbound connections
+$cmd 00299 deny log all from any to any out via $pif
+
+##############################################################################
+### Connections from internet hosts to the internal system(s)           ######
+##############################################################################
+
+# Deny public pings
+$cmd 00310 deny icmp from any to any in via $pif
+
+# Deny ident
+$cmd 00315 deny tcp from any to any 113 in via $pif
+
+# Deny all Netbios services.
+$cmd 00320 deny tcp from any to any 137 in via $pif
+$cmd 00321 deny tcp from any to any 138 in via $pif
+$cmd 00322 deny tcp from any to any 139 in via $pif
+$cmd 00323 deny tcp from any to any 81 in via $pif
+
+# Deny fragments
+$cmd 00330 deny all from any to any frag in via $pif
+
+# Deny ACK packets that did not match the dynamic rule table
+$cmd 00332 deny tcp from any to any established in via $pif
+
+# Allow HTTP connections to internal webserver
+$cmd 00400 allow tcp from any to me 80 in via $pif setup limit src-addr 2
+
+# Allow inbound SSH connections
+$cmd 00410 allow tcp from any to me 22 in via $pif setup limit src-addr 2
+
+# Reject and log all other incomming connections
+$cmd 00499 deny log all from any to any in via $pif
+
+#### Everything Else is denied and logged ####################################
+$cmd 00999 deny log all from any to any
