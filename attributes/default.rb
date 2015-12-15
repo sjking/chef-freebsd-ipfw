@@ -1,1 +1,0 @@
-default['chef_freebsd_ipfw']['data_bag-dir'] = "firewall"
