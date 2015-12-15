@@ -10,9 +10,9 @@ that references it. For example, say we have a node we are managing with this
 cookbook with the hostname `example.com`. Then we would place a databag item
 called `firewall/example.com.json` with the following contents:
 
-  {
-    "rules": "webserver_vm.rules"
-  }
+    {
+      "rules": "webserver_vm.rules"
+    }
 
 The "rules" property names the rules file to be used for the node with hostname
 `example.com` in this example.
