@@ -8,9 +8,10 @@ Firewall rules are file resources. A firewall rule file in the cookbook is
 referenced by a data bag item that is named after the hostname for the node
 that references it. For example, say we have a node we are managing with this
 cookbook with the hostname `example.com`. Then we would place a databag item
-called `firewall/example.com.json` with the following contents:
+called `firewall/default/example.com.json` with the following contents:
 
     {
+      "hostname": "example.com",
       "rules": "webserver_vm.rules"
     }
 
